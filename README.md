@@ -29,6 +29,14 @@ Este projeto implementa um "Radar" de IPs em tempo real, permitindo a **varredur
 
 A principal funcionalidade de segurança é o sistema de **Whitelist** (lista de IPs aceitos), que identifica e destaca (em vermelho) qualquer dispositivo **novo ou desconhecido** que se conecte à rede.
 
+---
+
+### 📸 Captura de Tela do Aplicativo
+
+![Captura de Tela do Radar](https://raw.githubusercontent.com/mourafuseti/Ip_radar_project/main/tela.png)
+
+---
+
 -----
 
 ## 🛠️ Requisitos e Dependências
@@ -112,3 +120,4 @@ py -3.13 main.py
 | **Identificação Visual** | **Verde:** IPs que estão na Whitelist (`accepted_ips.txt`). **Vermelho:** IPs desconhecidos (alerta de novo dispositivo na rede). |
 | **Alerta Sonoro** | Um som de "blip" é reproduzido (usando `simpleaudio`) **apenas** quando um host que **não estava** presente no scan anterior é detectado. |
 | **Visualização de Radar** | Interface em tempo real que exibe os *hosts* ativos no painel de detalhes e como "blips" no gráfico circular. |
+
