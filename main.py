@@ -8,6 +8,7 @@ def main():
     """
     Função principal que inicializa o aplicativo de Radar de Rede.
     """
+    
     # Define um range padrão de fallback. O scanner tentará detectar o correto.
     TARGET_NETWORK_FALLBACK = "192.168.1.1/24" 
     
@@ -21,7 +22,7 @@ def main():
 
     except Exception as e:
         print(f"ERRO CRÍTICO ao iniciar a aplicação: {e}")
-        # ... mensagens de erro ...
+        print("Verifique se as dependências (Scapy, simpleaudio, netifaces) estão instaladas.")
 
 if __name__ == "__main__":
     main()
