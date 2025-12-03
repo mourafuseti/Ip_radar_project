@@ -3,13 +3,14 @@
 import tkinter as tk
 import math
 import threading 
-import simpleaudio as sa # Biblioteca de reprodução de som
-import time # Necessário para o sleep
+# import simpleaudio as sa # REMOVIDO: Biblioteca de reprodução de som
+# import time # REMOVIDO: Necessário para o sleep
 
 # Importa a classe do scanner de rede
 try:
     from network_scanner import ScannerThread 
 except ImportError:
+    # Esta mensagem será exibida se houver erro no network_scanner.py
     print("ERRO: Não foi possível importar network_scanner.py. Verifique o nome do arquivo.")
     exit()
 
@@ -21,18 +22,10 @@ class IPRadarApp:
         self.master = master
         master.title("📡 Radar de Rede em Tempo Real")
         
-        # --- Configurações do Som ---
-        self.BLIP_SOUND_FILE = "radar_blip.wav" 
+        # --- Configurações de Estado ---
         self.known_ips = set() 
-        self.wave_obj = None   
-        self.sound_lock = threading.Lock() # Lock para serializar o acesso ao áudio
-        
-        try:
-            # Pré-carrega o arquivo WAV uma vez
-            self.wave_obj = sa.WaveObject.from_wave_file(self.BLIP_SOUND_FILE)
-            print(f"✅ Arquivo de som '{self.BLIP_SOUND_FILE}' carregado com sucesso.")
-        except Exception as e:
-            print(f"⚠️ AVISO: Não foi possível carregar o arquivo de som. Erro: {e}")
+        # REMOVIDO: self.BLIP_SOUND_FILE, self.wave_obj, self.sound_lock
+        # REMOVIDO: try/except para carregar o arquivo de som
         
         # --- Configurações do Radar e UI ---
         self.CANVAS_SIZE = 600
@@ -63,31 +56,9 @@ class IPRadarApp:
         # --- Configura o encerramento seguro ---
         master.protocol("WM_DELETE_WINDOW", self.on_closing)
 
-    # --- Métodos de Reprodução de Som ---
+    # --- Métodos de Reprodução de Som (REMOVIDOS) ---
     
-    def _play_blip_sound(self):
-        """Toca o som de blip de forma segura, esperando a reprodução e liberando recursos."""
-        
-        # Tenta adquirir o Lock. Se falhar (som já tocando), ignora a requisição.
-        if self.sound_lock.acquire(blocking=False): 
-            if self.wave_obj:
-                try:
-                    # Inicia a reprodução
-                    play_obj = self.wave_obj.play()
-                    
-                    # CRÍTICO: Espera a reprodução terminar completamente
-                    play_obj.wait_done() 
-                    
-                    # Pequeno delay para garantir que o SO libere o buffer (melhora a estabilidade no Windows)
-                    time.sleep(0.1) 
-                    
-                except Exception as e:
-                    print(f"Erro ao tocar som: {e}")
-                finally:
-                    # Libera o Lock
-                    self.sound_lock.release()
-            else:
-                self.sound_lock.release()
+    # O método _play_blip_sound foi removido completamente.
 
     # --- Métodos de Desenho e Animação (Visual) ---
 
@@ -145,13 +116,15 @@ class IPRadarApp:
         self.master.after(0, self._plot_hosts) 
 
     def _plot_hosts(self):
-        """Plota os pontos (blips) dos hosts ativos no radar e toca o som se necessário."""
+        """Plota os pontos (blips) dos hosts ativos no radar."""
         
         self.canvas.delete("blips")
         self.canvas.delete("ip_text")
         
         num_hosts = len(self.active_hosts)
         current_ips = set()
+        
+        # new_host_detected não é mais usado para som, mas pode ser mantido para logs futuros
         new_host_detected = False
         
         details_text = f"Hosts Ativos ({num_hosts}):\n"
@@ -161,10 +134,10 @@ class IPRadarApp:
             ip = host['IP']
             current_ips.add(ip)
             
-            # --- Lógica de Som e Novo Host ---
-            if ip not in self.known_ips:
+            # --- Lógica de Deteção (Mantida para fins de log/visualização) ---
+            if ip not in self.known_ips and host['StatusColor'] == 'red':
                 new_host_detected = True 
-            # ----------------------------------
+            # ----------------------------------------------------------------
             
             plot_angle = (i * (360 / max(1, num_hosts))) % 360
             rad = math.radians(plot_angle)
@@ -191,11 +164,7 @@ class IPRadarApp:
 
             details_text += f"[{host['StatusText']:<10}] {host['IP']:<15} {host['MAC']}\n"
 
-        # Toca o som APENAS UMA VEZ por ciclo de scan se um novo host for detectado
-        if new_host_detected:
-            # CRÍTICO: Cria a thread como DAEMON
-            t = threading.Thread(target=self._play_blip_sound, daemon=True) 
-            t.start()
+        # REMOVIDO: A chamada da thread de som
             
         # Atualiza a lista de hosts conhecidos para o próximo scan
         self.known_ips = current_ips
